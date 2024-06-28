@@ -62,7 +62,7 @@ public class FileDownloader {
                     JOptionPane.showMessageDialog(null, "Falha ao baixar arquivos. Erro: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
                     e.printStackTrace();
                 } finally {
-                    runLauncher(new File("."));
+                    runLauncher();
                     System.exit(0);
                 }
             }
@@ -70,10 +70,10 @@ public class FileDownloader {
         worker.execute();
     }
 
-    private void runLauncher(File dir) {
+    private void runLauncher() {
         try {
-            ProcessBuilder pb = new ProcessBuilder("java", "-jar", "bin/launcher.jar");
-            pb.directory(dir);
+            ProcessBuilder pb = new ProcessBuilder("java", "-jar", "launcher.jar");
+            pb.directory(new File("bin"));
             pb.start();
         } catch (IOException e) {
             e.printStackTrace();
@@ -90,6 +90,7 @@ public class FileDownloader {
         FileOutputStream out = new FileOutputStream(file);
         byte[] buffer = new byte[4096];
         int bytesRead;
+        System.out.println("Baixando " + path);
         while ((bytesRead = in.read(buffer)) != -1) {
             out.write(buffer, 0, bytesRead);
         }
