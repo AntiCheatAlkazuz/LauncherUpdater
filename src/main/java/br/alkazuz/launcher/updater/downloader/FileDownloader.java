@@ -1,5 +1,6 @@
 package br.alkazuz.launcher.updater.downloader;
 
+import br.alkazuz.launcher.updater.Updater;
 import br.alkazuz.launcher.updater.object.FileEntry;
 import br.alkazuz.launcher.updater.util.MD5Checksum;
 import com.google.gson.Gson;
@@ -8,6 +9,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import javax.swing.*;
 
 public class FileDownloader {
@@ -34,10 +36,12 @@ public class FileDownloader {
                 int currentFileIndex = 0;
 
                 for (FileEntry file : files) {
-                    File localFile = new File(file.getFile());
+                    File localFile = new File("bin" + File.separator + file.getFile());
                     if (localFile.exists() && !file.getHash().equals(MD5Checksum.calculateMD5(localFile))) {
+                        System.out.println("md5 diferente: " + file.getFile());
                         updateFile(file.getFile().substring(2));
                     } else if (!localFile.exists()) {
+                        System.out.println("arquivo nao existe: " + file.getFile());
                         updateFile(file.getFile().substring(2));
                     }
                     currentFileIndex++;
@@ -72,10 +76,37 @@ public class FileDownloader {
 
     private void runLauncher() {
         try {
+            File workingFolder = new File("bin");
+            if (workingFolder.exists()) {
+                if (!workingFolder.isDirectory())
+                    workingFolder.mkdirs();
+            } else {
+                workingFolder.mkdirs();
+            }
+
+            String[] arguments = new String[Updater.args.length + 4];
+            for (int i = 0; i < arguments.length; i++) {
+                switch (i) {
+                    case 1:
+                        arguments[1] = "-Duser.home=" + workingFolder.getAbsolutePath();
+                        break;
+                    case 2:
+                        arguments[2] = "-jar";
+                        break;
+                    case 3:
+                        arguments[3] = workingFolder.getAbsolutePath() + File.separator + "launcher.jar";
+                        break;
+                }
+            }
+            File minecraftFolder = new File(workingFolder, "data");
+            System.out.println("Minecraft folder: " + minecraftFolder.getAbsolutePath());
             ProcessBuilder pb = new ProcessBuilder("java", "-jar", "launcher.jar");
+            Map<String, String> env = pb.environment();
+            env.put("APPDATA", minecraftFolder.getAbsolutePath());
             pb.directory(new File("bin"));
             pb.start();
-        } catch (IOException e) {
+
+        } catch (IOException  e) {
             e.printStackTrace();
         }
     }

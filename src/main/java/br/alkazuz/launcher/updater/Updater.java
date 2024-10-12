@@ -11,6 +11,7 @@ import java.io.*;
 public class Updater extends JFrame {
     private JProgressBar progressBar;
     private JLabel statusLabel;
+    public static String[] args;
 
     public Updater() {
         setTitle("Sunshine | Iniciando Launcher");
@@ -24,6 +25,7 @@ public class Updater extends JFrame {
     }
 
     public static void main(String[] args) {
+        Updater.args = args;
         SwingUtilities.invokeLater(Updater::new);
     }
 
